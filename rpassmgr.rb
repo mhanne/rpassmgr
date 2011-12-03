@@ -26,6 +26,8 @@ class RPassCmd
         @rpass.del_password cmd[0], cmd[2]
       when 'show'
         @rpass.show_password cmd[0], cmd[2]
+      when 'copy'
+        @rpass.copy_password cmd[0], cmd[2]
       else
         @rpass.print_help
       end
@@ -49,6 +51,7 @@ class RPass
     puts "rpass <group> add <name>   => add password"
     puts "rpass <group> del <name>   => delete password"
     puts "rpass <group> show <name>  => display password"
+    puts "rpass <group> copy <name>  => copy password to clipboard"
   end
 
   def list_groups
@@ -93,16 +96,27 @@ class RPass
     write_group(group, passwords, pass)
   end
 
-  def show_password group, name
+  def get_password group, name
     pass = ask("Password for group #{group}")
     passwords = read_group(group, pass)
+    passwords[name]
+  end
+
+  def show_password group, name
+    pw = get_password group, name
     STDOUT.sync = true
-    pw = passwords[name]
     print pw
     STDOUT.flush
     sleep 10
     print "\r" + " " * pw.length + "\r"
     STDOUT.flush
+  end
+
+  def copy_password group, name
+    pw = get_password group, name
+    IO.popen('xsel --clipboard --input', 'r+') do |clipboard|
+      clipboard.print(pw)
+    end
   end
 
   private
