@@ -1,13 +1,5 @@
 #!/usr/bin/env ruby
 
-# rpass list => list groups
-# rpass add <name> => add group
-# rpass del <name> => delete group
-# rpass <group> list => list passwords
-# rpass <group> add <name> => add password
-# rpass <group> del <name> => delete password
-# rpass <group> show <name> => display password
-
 require 'rubygems'
 require 'yaml'
 require 'aes'
@@ -22,6 +14,8 @@ class RPassCmd
       @rpass.add_group cmd[1]
     when 'del'
       @rpass.del_group cmd[1]
+    when 'help'
+      @rpass.print_help
     else
       case cmd[1]
       when 'list'
@@ -32,6 +26,8 @@ class RPassCmd
         @rpass.del_password cmd[0], cmd[2]
       when 'show'
         @rpass.show_password cmd[0], cmd[2]
+      else
+        @rpass.print_help
       end
     end
   end
@@ -43,6 +39,16 @@ class RPass
   def initialize key_dir = KEY_DIR
     @key_dir = key_dir
     Dir.mkdir(@key_dir)  if !File.exist?(@key_dir)
+  end
+
+  def print_help
+    puts "rpass list                 => list groups"
+    puts "rpass add <name>           => add group"
+    puts "rpass del <name>           => delete group"
+    puts "rpass <group> list         => list passwords"
+    puts "rpass <group> add <name>   => add password"
+    puts "rpass <group> del <name>   => delete password"
+    puts "rpass <group> show <name>  => display password"
   end
 
   def list_groups
